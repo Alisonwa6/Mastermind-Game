@@ -95,7 +95,8 @@ Congratulations! You guessed the secret code: coast</b></pre>
 <li>JetBrains IntelliJ IDEA Messages</li>
 </ul>
 
-
+## UML Diagram
+<img src="Mastermind.png" alt="UML Diagram" width="750">
 
 
 
