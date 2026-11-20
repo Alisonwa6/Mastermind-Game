@@ -80,21 +80,21 @@ Attempt 5/10 - Enter guess: coast
 Congratulations! You guessed the secret code: coast</b></pre>
 
 ## Directions
-Complete the PigDice.cpp template provided which should use the procedural programming approach presented in CSC 175 to implement the Pig Dice game described above. 
-
-### Your solution code should include the following:
 <ul>
-<li>Break the solution down into functions such as:</li>
-<ul><li>playGame function</li>
-<li>takeTurn function</li>
-<li>roll function</li>
-<li>hold function</li></ul>
-<li>Pass parameters by reference between functions (no global variables)</li>
-<li>Make use of loop constructs like the while loop</li>
-<li>Make use of the GameState structure provided in the template</li>
+<li>Fork the Test2-MasterMind-Game repository</li>
+<li>Clone the repository to Clion</li>
+<li>Locate and correct 15 different syntax errors in the give main.cpp. </li>
+<li>When all errors have been corrected, the code will produce the game shown above. </li>
 </ul>
 
-<b>Note: Your solution must recreate the <i>exact</i> user interface shown below.</b>
+### Use the following to help you locate and correct the errors:
+<ul>
+<li>Your knowledge of OOP encapsulation, abstraction, inheritance, and polymorphism.</li>
+<li>The given UML diagram below.</li>
+<li>Comments in the code.</li>
+<li>JetBrains IntelliJ IDEA Messages</li>
+</ul>
+
 
 
 
