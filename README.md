@@ -93,7 +93,7 @@ Congratulations! You guessed the secret code: coast</b></pre>
 <li>The given UML diagram below.</li>
 <li>Comments in the code.</li>
 <li>JetBrains IntelliJ IDEA Messages</li>
-<li><b>Note: Most of the implementation code is already in the source file, so be careful not to get carried away with new implementation code!</b></li>
+<li><b>Note: With only a few missing statements, all of the class implementation code is already in the source file so be careful not to get carried away with new implementation code!</b></li>
 </ul>
 
 ## UML Diagram
