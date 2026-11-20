@@ -81,7 +81,7 @@ Congratulations! You guessed the secret code: coast</b></pre>
 
 ## Directions
 <ul>
-<li>Fork the Test2-MasterMind-Game repository</li>
+<li>Fork the MasterMind-Game repository</li>
 <li>Clone the repository to Clion</li>
 <li>Locate and correct 15 different syntax errors in the give main.cpp. </li>
 <li>When all errors have been corrected, the code will produce the game shown above. </li>
