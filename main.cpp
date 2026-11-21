@@ -4,10 +4,13 @@
 #include <algorithm>
 #include <iomanip>
 #include <cctype>
+#include <memory>
+#include <random> // missing library for randomizer
 
 // Abstract Base Class
 class BaseGame {
 
+    protected: // needs to be declared as protected for children to inherit
     std::string m_secretCode;
     int m_maxAttempts;
     int m_currentAttempts;
@@ -15,15 +18,17 @@ class BaseGame {
     std::string m_correct;
 
     // Functions that must be implemented by derived classes
-    void generateSecretCode();
-    bool isValidGuess(const std::string& guess) const ;
-    std::string getGameModeRules() const ;
+    virtual void generateSecretCode()=0; // made virtual to be inherited
+    virtual bool isValidGuess(const std::string& guess) const =0; // made virtual to be inherited
+    virtual std::string getGameModeRules() const =0; // made virtual to be inherited
 
     // Inherited helper function to check for duplicate characters
-    void hasUniqueCharacters(const std::string& str) const {
+    // needs to be a boolean function to return true/false
+    static bool hasUniqueCharacters(const std::string& str) {
         for (size_t i = 0; i < str.length(); ++i) {
             for (size_t j = i + 1; j < str.length(); ++j) {
-                if (str[i] == str[j]) return false;
+                if (str[i] == str[j])
+                    return false;
             }
         }
         return true;
@@ -46,11 +51,11 @@ class BaseGame {
     }
 
 public:
-    BaseGame(int length, int attempts){
+    BaseGame(const int length, const int attempts){
         m_codeLength = length;
         m_maxAttempts = attempts;
         m_currentAttempts = 0;
-        m_correct = "xxxxx";
+        m_correct = std::string(length, *"x"); // changed to match length regardless of game type
     }
 
     // Virtual destructor is essential for base classes with virtual functions
@@ -59,7 +64,7 @@ public:
     // Inherited method for controlling the main game flow
     void play() {
         // call to generate a secret code
-
+        generateSecretCode();
         std::cout << "\n--- Starting Game ---\n";
         std::cout << getGameModeRules() << "\n";
         std::cout << "You have " << m_maxAttempts << " attempts.\n\n";
@@ -90,7 +95,7 @@ public:
 };
 
 // Derived Class 1: 4-Digit Number Mode
-class NumericGame {
+class NumericGame : public BaseGame {
 protected:
     void generateSecretCode() override {
         std::string digits = "0123456789";
@@ -102,7 +107,7 @@ protected:
 
     bool isValidGuess(const std::string& guess) const override {
         if (guess.length() != static_cast<size_t>(m_codeLength)) return false;
-        for (char c : guess) {
+        for (const char c : guess) {
             if (!std::isdigit(c)) return false;
         }
         return hasUniqueCharacters(guess);
@@ -112,19 +117,18 @@ protected:
         return "Mode: Numbers. Guess a " + std::to_string(m_codeLength) + "-digit number with unique digits (0-9).";
     }
 
-
-    NumericGame(int length = 4, int attempts = 10): BaseGame(length, attempts) {
+public:
+    explicit NumericGame(int length = 4, int attempts = 10): BaseGame(length, attempts) {
          m_correct = "xxxx";
     }
 };
 
 // Derived Class 2: Isogram Word Mode
-class WordGame  {
-private:
-    std::vector<std::string> wordBank = {"plane", "steam", "coast", "bride", "white", "false"};
-
+class WordGame : public BaseGame {
 protected:
     void generateSecretCode() override {
+        // moved wordBank into generateSecretCode function to match the UML diagram
+        std::vector<std::string> wordBank = {"plane", "steam", "coast", "bride", "white", "false"};
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dist(0, wordBank.size() - 1);
@@ -134,7 +138,7 @@ protected:
 
     bool isValidGuess(const std::string& guess) const override {
         if (guess.length() != static_cast<size_t>(m_codeLength)) return false;
-        for (char c : guess) {
+        for (const char c : guess) {
             if (!std::islower(c)) return false;
         }
         return hasUniqueCharacters(guess);
@@ -144,37 +148,52 @@ protected:
         return "Mode: Word Isogram. Guess a " + std::to_string(m_codeLength) + "-letter lowercase word with no repeating letters.";
     }
 
-
-    WordGame(int attempts = 10): BaseGame(5, attempts) {
+public:
+    explicit WordGame(const int attempts = 10): BaseGame(5, attempts) {
         m_correct = "xxxxx";
     }
 };
 
 int main() {
-    int choice;
-    std::cout << "Select Game Mode:\n1. Number Mode (4 digits)\n2. Word Mode (6 letters)\nChoice: ";
+    while (1) {
+        try {
+            int choice = 0;
+            std::cout << "Select Game Mode:\n1. Number Mode (4 digits)\n2. Word Mode (6 letters)\nChoice: ";
+            std::cin >> choice;
 
+            if (std::cin.fail()) {
+                throw 101;
+            }
 
-    // Create a polymorphic pointer that can point to a BaseGame object or any class of object derived from BaseGame
-    // Currently hold nullptr (nothing)
-    // unique_ptr means the object will automatically be deleted when it goes out of scope to prevent memory leak
+            // Create a polymorphic pointer that can point to a BaseGame object or any class of object derived from BaseGame
+            // Currently hold nullptr (nothing)
+            // unique_ptr means the object will automatically be deleted when it goes out of scope to prevent memory leak
+            std::unique_ptr<BaseGame> game;
 
+            if (choice == 2) {
+                // Instantiate a new WordGame object on heap memory passing 10 to the constructor
+                // Then assign assign ownership of the object to the game pointer
+                game = std::make_unique<WordGame>(10);
+            } else {
+                // Instantiate a new NumericGame object on heap memory passing 4 and 10 to the constructor
+                // Then assign assign ownership of the object to the game pointer
+                game = std::make_unique<NumericGame>(4, 10);
+            }
 
-    if (choice == 2) {
-        // Instantiate a new WordGame object on heap memory passing 10 to the constructor
-        // Then assign assign ownership of the object to the game pointer
-
-    } else {
-        // Instantiate a new NumericGame object on heap memory passing 4 and 10 to the constructor
-        // Then assign assign ownership of the object to the game pointer
-
+            /*
+             * Unified Interface: Even though WordGame and NumericGame are different classes, storing them in a
+             * BaseGame pointer lets the rest of your program interact with game the exact same way
+             * without needing to know which specific version was created.
+             */
+            game->play();
+            break;
+        }
+        catch (int error) {
+            std::cin.clear();
+            std::cin.ignore(100,'\n');
+            std::cout << "Invalid data entered - Code: " << error << std::endl;
+            continue;
+        }
     }
-
-    /*
-     * Unified Interface: Even though WordGame and NumericGame are different classes, storing them in a
-     * BaseGame pointer lets the rest of your program interact with game the exact same way
-     * without needing to know which specific version was created.
-     */
-
     return 0;
 }
